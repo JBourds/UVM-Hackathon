@@ -4,18 +4,17 @@ from wtforms import FieldList, FileField, FormField, StringField, SubmitField, T
 from wtforms.validators import DataRequired
 
 class AdminForm(FlaskForm):
-    title = StringField("title", validators=[DataRequired()])
-    prompt = StringField("prompt", validators=[DataRequired()])
-    # template = TextAreaField("template", default="# enter code here", validators=[DataRequired()])
-    test_file = FileField("test file", validators=[
+    title = StringField("Question Title", validators=[DataRequired()], render_kw={"placeholder": "Print \"Hello world!\""})
+    prompt = StringField("Question Prompt", validators=[DataRequired()], render_kw={"placeholder": "Write a function to display a \"Hello world!\" message."})
+    test_file = FileField("Tests File", validators=[
         FileRequired(),
         FileAllowed(["py"], message="upload .py inputs file")
-    ])
-    template_file = FileField("template file", validators=[
+    ], render_kw={"class": "file_upload"})
+    template_file = FileField("Template File (for users)", validators=[
         FileRequired(),
         FileAllowed(["py"], message="upload .py template file")
-    ])
-    submit = SubmitField("submit", validators=[DataRequired()])
+    ], render_kw={"class": "file_upload"})
+    submit = SubmitField("Submit Question", validators=[DataRequired()], render_kw={"style": "margin-top: 1em;"})
 
 class ProblemForm(FlaskForm):
     user_code = TextAreaField("User Code")

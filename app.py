@@ -151,10 +151,11 @@ def problem(id: int):
     code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
     table_row = Tutorial.get_row(id)
     prompt: str = table_row['prompt']
+    name: str = table_row['name']
 
     form = ProblemForm(meta={'csrf': False})
     form.user_code.data = user_function
-    return render_template("user.html", form=form, problem_id=id, prompt=prompt, problem_count=problem_count, output=output, code_analysis=code_analysis)
+    return render_template("user.html", form=form, problem_id=id, name=name, prompt=prompt, problem_count=problem_count, output=output, code_analysis=code_analysis)
 
 
 if __name__ == "__main__":

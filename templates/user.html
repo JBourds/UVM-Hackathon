@@ -10,8 +10,8 @@ Problem {{ problem_id }}
 <div class="container my-5">
   <form id="signup-form" class="custom-bg-primary my-3" method="POST" action="/check_question">
     <input type="number" id="problem_id" name="problem_id" value="{{ problem_id }}" hidden style="display: none">
-    <h2 class="text-center font-weight-bold">Problem {{ problem_id }}</h2>
-    
+    <h2 class="text-center font-weight-bold">{{ name }}</h2>
+
     <h4>Prompt</h4>
     <div class="d-flex justify-content-between my-3 border bg-light">
       <p class=".text-dark">{{ prompt }}</p>
