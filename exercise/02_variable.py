@@ -1,9 +1,9 @@
-# PROMT: This code does not compile correctly! We want to print "Hello, World!" again, but this time, we want to use the variable x in the oracle_function. See if you can use a variable to print "Hello, World!".
 
-output = ["Hello, World!"]
+# PROMT: Now try creating a variable that contains "Hello, World!" and print it by printing the variable.
+
+input = [""]
 
 def oracle_function(x):
-    # You only need one additional line of code to complete this task!
+    x = "Hello, World!"
 
-    # Don't change this line!
     print(x)
