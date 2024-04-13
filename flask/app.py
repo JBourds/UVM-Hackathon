@@ -6,7 +6,8 @@ Author:      Jordan Bourdeau, Noah Schonhorn
 Date:        4/13/24
 """
 
-from flask import Flask, jsonify, redirect, render_template, request, Response
+from re import template
+from flask import Flask, jsonify, redirect, render_template, request, Response, url_for
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -16,11 +17,14 @@ from pprint import pprint
 
 import json
 import os
-from lib.Forms import AdminForm, UserForm
+from lib.Forms import AdminForm, ProblemForm
 
 app = Flask(__name__)
 boostrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
+csrf.init_app(app)
+csrf_secret_key = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = csrf_secret_key
 basedir: str = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////" + os.path.join(basedir, "database.db")
 db = SQLAlchemy()
@@ -29,10 +33,14 @@ class Tutorial(db.Model):
     order = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64))
     prompt = db.Column(db.Text)
-    language = db.Column(db.String(64))
     template_code = db.Column(db.Text)
     test_code = db.Column(db.Text)
-    test_inputs = db.Column(db.Text)    # Pickled array of potential array inputs
+
+    def __init__(self, name: str, prompt: str, template_code: str, test_code: str):
+        self.name = name
+        self.prompt = prompt
+        self.template_code = template_code
+        self.test_code = test_code
 
     @staticmethod
     def get_oracle_function(problem_number: int) -> str:
@@ -75,10 +83,37 @@ def print_and_return(client_bindings: dict) -> Response:
 def main():
     return render_template("base.html")
 
-@app.route("/admin", methods=["GET"])
+@app.route("/form", methods=["GET"])
+def form():
+    return render_template("form.html")
+
+@app.route("/admin", methods=["GET", "POST"])
+@csrf.exempt # FIXME: not secure, fix later
 def admin():
     form = AdminForm(meta={'csrf': False})
-    return render_template("admin.html", form=form)
+    if form.validate_on_submit():
+        data1 = form.test_file.data
+        data2 = form.template_file.data
+
+        tests_data_str = ""
+        for d in data1:
+            tests_data_str += (d.decode("utf-8"))
+
+        templates_data_str = ""
+        for d in data2:
+            templates_data_str += (d.decode("utf-8"))
+
+        title: str = request.form["title"]
+        prompt: str = request.form["prompt"]
+
+        tutorial = Tutorial(name=title, prompt=prompt, template_code=templates_data_str, test_code=tests_data_str)
+        db.session.add(tutorial)    
+        db.session.commit()
+
+        return redirect(url_for("admin"))
+    else:
+        return render_template("admin.html", form=form)
+    
 
 @app.route("/check_question", methods=["POST"])
 @csrf.exempt
@@ -99,7 +134,7 @@ def problem(id: int):
     output: str = request.args.get("output", "Output will show here once you run your code")
     code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
 
-    form = UserForm(meta={'csrf': False})
+    form = ProblemForm(meta={'csrf': False})
     form.user_code.data = template_code
     return render_template("user.html", form=form, problem_id=id, output=output, code_analysis=code_analysis)
 
@@ -112,9 +147,9 @@ if __name__ == "__main__":
         db.create_all()
 
         # Test code
-        tutorial = Tutorial(name="Test", prompt="Test", language="Python", template_code="def test_", test_code="test code", test_inputs="test input")
+        tutorial = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
         db.session.add(tutorial)    
-        tutorial2 = Tutorial(name="Test", prompt="Test", language="Python", template_code="def test_", test_code="test code", test_inputs="test input")
+        tutorial2 = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
         db.session.add(tutorial2)    
         db.session.commit()
 
