@@ -12,19 +12,29 @@ import os
 from pprint import pprint
 
 app = Flask(__name__)
-
 basedir: str = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////" + os.path.join(basedir, "database.db")
 db = SQLAlchemy()
 
+class Tutorials(db.Model):
+    order = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    prompt = db.Column(db.Text)
+    language = db.Column(db.String(64), unique=True)
+    template_code = db.Column(db.Text)
+    test_code = db.Column(db.Text)
+    expected_output = db.Column(db.Text)
+
 def print_and_return(client_bindings: dict) -> Response:
     """
-    Description:                Method used to print server response before returning it.
-    :param client_bindings:     Dictionary to be jsonifed and sent to the client.
-    :return:                    JSON response of dictionary.
+    Description:             Method used to print server response before returning it.
+    :param client_bindings:  Dictionary to be jsonifed and sent to the client.
+    :return:                 JSON response of dictionary.
     """
     pprint(client_bindings)
     return jsonify(client_bindings)
+
+# Endpoints
 
 @app.route("/", methods=["GET"])
 def main():
