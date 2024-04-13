@@ -12,11 +12,12 @@ from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sqlalchemy.inspection import inspect
-import os
-from flask_wtf import CSRFProtect
+from flask_wtf import CSRFProtect, FlaskForm, csrf
 from pprint import pprint
 
-from lib.Forms import TestForm
+import json
+import os
+from lib.Forms import AdminForm, ProblemForm
 
 app = Flask(__name__)
 boostrap = Bootstrap5(app)
@@ -35,19 +36,23 @@ class Tutorial(db.Model):
     template_code = db.Column(db.Text)
     test_code = db.Column(db.Text)
 
-    @staticmethod
-    def get_pickled_oracle_function(problem_number: int) -> str:
-        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_code']
-    
-    @staticmethod
-    def get_pickled_test_inputs(problem_number: int) -> str:
-        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_inputs']
-
     def __init__(self, name: str, prompt: str, template_code: str, test_code: str):
         self.name = name
         self.prompt = prompt
         self.template_code = template_code
         self.test_code = test_code
+
+    @staticmethod
+    def get_oracle_function(problem_number: int) -> str:
+        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_code']
+    
+    @staticmethod
+    def get_template_code(problem_number: int) -> str:
+        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['template_code']
+    
+    @staticmethod
+    def get_row(problem_number: int):
+        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()
     
     def serialize(self):
         """
@@ -74,8 +79,6 @@ def print_and_return(client_bindings: dict) -> Response:
     return jsonify(client_bindings)
 
 # Endpoints
-
-
 @app.route("/", methods=["GET"])
 def main():
     return render_template("base.html")
@@ -87,7 +90,7 @@ def form():
 @app.route("/admin", methods=["GET", "POST"])
 @csrf.exempt # FIXME: not secure, fix later
 def admin():
-    form = TestForm(meta={'csrf': False})
+    form = AdminForm(meta={'csrf': False})
     if form.validate_on_submit():
         data1 = form.test_file.data
         data2 = form.template_file.data
@@ -112,9 +115,28 @@ def admin():
         return render_template("admin.html", form=form)
     
 
-@app.route("/user", methods=["GET"])
-def user():
-    return render_template("user.html")
+@app.route("/check_question", methods=["POST"])
+@csrf.exempt
+def check_question():
+    data = request.form
+    problem_id: int = data['problem_id']
+    user_function: str = data['user_code']
+    table_row = Tutorial.get_row(problem_id)
+    print(table_row)
+
+    return redirect(f"/problem/{problem_id}", code=302)
+
+@app.route("/problem/<id>", methods=["GET"])
+@csrf.exempt
+def problem(id: int):
+    template_code: str = Tutorial.get_template_code(id)
+
+    output: str = request.args.get("output", "Output will show here once you run your code")
+    code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
+
+    form = ProblemForm(meta={'csrf': False})
+    form.user_code.data = template_code
+    return render_template("user.html", form=form, problem_id=id, output=output, code_analysis=code_analysis)
 
 
 if __name__ == "__main__":
@@ -125,9 +147,10 @@ if __name__ == "__main__":
         db.create_all()
 
         # Test code
-        # tutorial = Tutorial(name="Test", prompt="Test", language="Python", template_code="def test_", test_code="test code", test_inputs="test input")
-        # db.session.add(tutorial)    
-        # db.session.commit()
-        # print(Tutorial.get_pickled_oracle_function(1))
+        tutorial = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
+        db.session.add(tutorial)    
+        tutorial2 = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
+        db.session.add(tutorial2)    
+        db.session.commit()
 
     app.run(port=5000, debug=True)
