@@ -1,4 +1,3 @@
-from flask_bootstrap import BooleanField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import FieldList, FileField, FormField, StringField, SubmitField, TextAreaField, validators
