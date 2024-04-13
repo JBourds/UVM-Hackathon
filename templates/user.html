@@ -33,12 +33,17 @@ Problem {{ problem_id }}
   <hr>
 
   <div class="d-flex justify-content-between my-3">
-    {% if problem_id > 1 %}
-        <a href="/problem/{{ problem_id - 1 }}" class="btn btn-secondary">Last</a>
-    {% endif %}
-    {% if problem_id < problem_count %}
-        <a href="/problem/{{ problem_id + 1 }}" class="btn btn-secondary">Next</a>
-    {% endif %}  
+      {% if problem_id > 1 %}
+          <a href="/problem/{{ problem_id - 1 }}" class="btn btn-secondary">Last</a>
+      {% else %}
+          <span class="btn btn-secondary invisible">Last</span>
+      {% endif %}
+      
+      {% if problem_id < problem_count %}
+          <a href="/problem/{{ problem_id + 1 }}" class="btn btn-secondary">Next</a>
+      {% else %}
+          <span class="btn btn-secondary invisible">Next</span>
+      {% endif %}
   </div>
 
 </div>

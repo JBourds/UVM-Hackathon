@@ -133,7 +133,7 @@ def check_question():
     }
     
     analyzer_output = analyzer.analyze_code(analysis_dictionary)
-    output_string = f'Expected Output:\n{analyzer_output.get('Expected_IO', '')}\nActual Output:\n{analyzer_output.get('Actual_IO', '')}'
+    output_string = f"Expected Output:\n{analyzer_output.get('Expected_IO', '')}\nActual Output:\n{analyzer_output.get('Actual_IO', '')}"
     return redirect(url_for(f"problem", id=problem_id, user_function=user_function, output=output_string, code_analysis=analyzer_output.get('GPT_HELP', '')), code=302)
 
 @app.route("/problem/<int:id>", methods=["GET"])
