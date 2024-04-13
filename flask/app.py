@@ -6,7 +6,7 @@ Author:      Jordan Bourdeau, Noah Schonhorn
 Date:        4/13/24
 """
 
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, render_template, request, Response
 from flask_sqlalchemy import SQLAlchemy
 import os
 from pprint import pprint
@@ -26,9 +26,21 @@ def print_and_return(client_bindings: dict) -> Response:
     pprint(client_bindings)
     return jsonify(client_bindings)
 
-@app.route('/', methods=["GET"])
-def home_page():
-    return print_and_return({"Connected": True})
+@app.route("/", methods=["GET"])
+def main():
+    return render_template("base.html")
+
+@app.route("/form", methods=["GET"])
+def form():
+    return render_template("form.html")
+
+@app.route("/admin", methods=["GET"])
+def admin():
+    return render_template("admin.html")
+
+@app.route("/user", methods=["GET"])
+def user():
+    return render_template("user.html")
 
 
 if __name__ == "__main__":

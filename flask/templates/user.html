@@ -1,0 +1,14 @@
+{% extends "form.html" %}
+
+{% block title %}
+User
+{% endblock %}
+
+{% block form %}
+{{ super() }}
+<div class="container pt-5">
+  <form id="signup-form" class="custom-bg-primary" method="POST" action="/signup">
+    <h2 class="text-center font-weight-bold">Admin</h2>
+  </form>
+</div>
+{% endblock %}
