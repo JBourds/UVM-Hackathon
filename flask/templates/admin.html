@@ -1,0 +1,16 @@
+{% extends "form.html" %}
+{% from "bootstrap5/form.html" import render_form %}
+
+{% block title %}
+Admin
+{% endblock %}
+
+{% block form %}
+{{ super() }}
+<div class="container pt-5">
+  <form id="signup-form" class="custom-bg-primary" method="POST" action="/signup">
+    <h2 class="text-center font-weight-bold">Admin</h2>
+    {{ render_form(form) }}
+  </form>
+</div>
+{% endblock %}
