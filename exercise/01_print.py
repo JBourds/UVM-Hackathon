@@ -1,7 +1,7 @@
 
 # PROMPT: Make a print statement print "Hello, World!".
 
-input = [""]
+input = []
 
 def oracle_function(x):
     print("Hello, World!")
