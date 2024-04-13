@@ -1,0 +1,5 @@
+{
+    "problem_id": 1,
+    "user_function":
+        "def user_function(x):\n\ttotal = 0\n\tfor i in range(0,x):\n\t\ttotal += i\n\treturn total"
+}
