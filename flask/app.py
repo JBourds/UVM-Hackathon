@@ -6,17 +6,17 @@ Author:      Jordan Bourdeau, Noah Schonhorn
 Date:        4/13/24
 """
 
-from flask import Flask, jsonify, render_template, request, Response
+from flask import Flask, jsonify, redirect, render_template, request, Response
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sqlalchemy.inspection import inspect
-import os
 from flask_wtf import CSRFProtect, FlaskForm, csrf
 from pprint import pprint
 
+import json
 import os
-from lib.Forms import TestForm
+from lib.Forms import AdminForm, UserForm
 
 app = Flask(__name__)
 boostrap = Bootstrap5(app)
@@ -67,24 +67,32 @@ def print_and_return(client_bindings: dict) -> Response:
     return jsonify(client_bindings)
 
 # Endpoints
-
-
 @app.route("/", methods=["GET"])
 def main():
     return render_template("base.html")
 
-@app.route("/form", methods=["GET"])
-def form():
-    return render_template("form.html")
-
 @app.route("/admin", methods=["GET"])
 def admin():
-    form = TestForm(meta={'csrf': False})
+    form = AdminForm(meta={'csrf': False})
     return render_template("admin.html", form=form)
 
+@app.route("/check_question", methods=["POST"])
+@csrf.exempt
+def check_question():
+    print(request.data)
+    data = jsonify(json.loads(request.data))
+    print(data)
+
+    return redirect("/user", code=302)
+
 @app.route("/user", methods=["GET"])
+@csrf.exempt
 def user():
-    return render_template("user.html")
+    output: str = request.args.get("output", "Output will show here once you run your code")
+    code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
+
+    form = UserForm(meta={'csrf': False})
+    return render_template("user.html", form=form, output=output, code_analysis=code_analysis)
 
 
 if __name__ == "__main__":
