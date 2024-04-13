@@ -8,7 +8,7 @@ Admin
 {% block form %}
 {{ super() }}
 <div class="container pt-5">
-  <form id="signup-form" class="custom-bg-primary" method="POST" action="/signup">
+  <form id="signup-form" class="custom-bg-primary" method="POST", enctype="multipart/form-data", action="/admin">
     <h2 class="text-center font-weight-bold">Admin</h2>
     {{ render_form(form) }}
   </form>
