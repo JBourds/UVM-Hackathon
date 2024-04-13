@@ -6,21 +6,24 @@ Author:      Jordan Bourdeau, Noah Schonhorn
 Date:        4/13/24
 """
 
+from re import template
 from flask import Flask, jsonify, render_template, request, Response
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from sqlalchemy.inspection import inspect
 import os
-from flask_wtf import CSRFProtect, FlaskForm, csrf
+from flask_wtf import CSRFProtect
 from pprint import pprint
 
-import os
 from lib.Forms import TestForm
 
 app = Flask(__name__)
 boostrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
+csrf.init_app(app)
+csrf_secret_key = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = csrf_secret_key
 basedir: str = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////" + os.path.join(basedir, "database.db")
 db = SQLAlchemy()
@@ -29,10 +32,8 @@ class Tutorial(db.Model):
     order = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64))
     prompt = db.Column(db.Text)
-    language = db.Column(db.String(64))
     template_code = db.Column(db.Text)
     test_code = db.Column(db.Text)
-    test_inputs = db.Column(db.Text)    # Pickled array of potential array inputs
 
     @staticmethod
     def get_pickled_oracle_function(problem_number: int) -> str:
@@ -41,6 +42,12 @@ class Tutorial(db.Model):
     @staticmethod
     def get_pickled_test_inputs(problem_number: int) -> str:
         return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_inputs']
+
+    def __init__(self, name: str, prompt: str, template_code: str, test_code: str):
+        self.name = name
+        self.prompt = prompt
+        self.template_code = template_code
+        self.test_code = test_code
     
     def serialize(self):
         """
@@ -77,10 +84,47 @@ def main():
 def form():
     return render_template("form.html")
 
-@app.route("/admin", methods=["GET"])
+@app.route("/admin", methods=["GET", "POST"])
+@csrf.exempt # FIXME: not secure, fix later
 def admin():
     form = TestForm(meta={'csrf': False})
-    return render_template("admin.html", form=form)
+    if form.validate_on_submit():
+        data1 = form.test_file.data
+        data2 = form.template_file.data
+
+        tests_data_str = ""
+        for d in data1:
+            tests_data_str += (d.decode('utf-8'))
+
+        templates_data_str = ""
+        for d in data2:
+            templates_data_str += (d.decode('utf-8'))
+
+        title: str = request.form['title']
+        prompt: str = request.form['prompt']
+
+        tutorial = Tutorial(name=title, prompt=prompt, template_code=templates_data_str, test_code=tests_data_str)
+        db.session.add(tutorial)    
+        db.session.commit()
+
+        return(f"{title} {prompt} {tests_data_str} {templates_data_str}")
+    else:
+        return render_template("admin.html", form=form)
+
+@app.route("/create_question", methods=["POST"])
+@csrf.exempt # FIXME: not secure, fix later
+def create_question():
+    title: str = request.form['title']
+    prompt: str = request.form['prompt']
+    test: str = request.form['test_file']
+    template: str = request.form['template_file']
+    print(request.files['file'])
+    # tutorial = Tutorial(name=title, prompt=prompt, template_code=template, test_code=test)
+    # db.session.add(tutorial)    
+    # db.session.commit()
+    # print(f"{file_name_1} {file_name_2}")
+    return({})
+    
 
 @app.route("/user", methods=["GET"])
 def user():
