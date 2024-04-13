@@ -7,9 +7,10 @@ Admin
 
 {% block form %}
 {{ super() }}
+<link rel="stylesheet", href="{{ url_for('static', filename='custom.css' )}}">
 <div class="container pt-5">
-  <form id="signup-form" class="custom-bg-primary" method="POST", enctype="multipart/form-data", action="/admin">
-    <h2 class="text-center font-weight-bold">Admin</h2>
+  <form id="signup-form" class="custom-bg-primary" method="POST", enctype="multipart/form-data", action="/admin", style="padding: 3em 5em">
+    <h2 class="text-center font-weight-bold">Admin - Upload a Question</h2>
     {{ render_form(form) }}
   </form>
 </div>
