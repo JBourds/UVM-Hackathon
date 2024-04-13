@@ -1,7 +1,7 @@
-# PROMPT: :)
+# PROMPT: Create a string variable with the value "Hello, World!". Use the len() function to print the length of the string.
 
 input = [""]
 
 def oracle_function(x):
-    my_cool_string = ""
-    print(my_cool_string)
+    x = "Hello, World!"
+    print(len(x))
