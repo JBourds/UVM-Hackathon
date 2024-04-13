@@ -1,7 +1,20 @@
 import json
 import os 
 import contextlib
-from io import StringIO
+
+from io import StringIO 
+import sys
+import pickle
+
+class Capturing(list):
+    def __enter__(self):
+        self._stdout = sys.stdout
+        sys.stdout = self._stringio = StringIO()
+        return self
+    def __exit__(self, *args):
+        self.extend(self._stringio.getvalue().splitlines())
+        del self._stringio    # free up some memory
+        sys.stdout = self._stdout
 
 # This will be database Access
 problem_id = 1
@@ -46,11 +59,19 @@ try:
                 result = user_function()
                 oracle_result = oracle_function()
     for value in test_values:    
-        result = user_function(value)
-        oracle_result = oracle_function(value)
-        user_function_output[value] = result
-        oracle_function_output[value] = oracle_result
-    print()
+        with Capturing() as out_oracle:
+            result = oracle_function(value)
+            if result is not None:
+                print(result)
+        with Capturing() as out_user:
+            result = user_function(value)
+            if result is not None:
+                print(result)    
+
+        user_function_output[value] = out_oracle
+        oracle_function_output[value] = out_user
+
+
     for key in user_function_output.keys():
          if user_function_output[key] != oracle_function_output[key]:
               print(f'Test case with input {key} failed: Correct answer is {oracle_function_output[key]} and user answer is {user_function_output[key]}')
