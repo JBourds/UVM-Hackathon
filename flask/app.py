@@ -7,7 +7,7 @@ Date:        4/13/24
 """
 
 from re import template
-from flask import Flask, jsonify, render_template, request, Response
+from flask import Flask, jsonify, redirect, render_template, request, Response, url_for
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -94,36 +94,22 @@ def admin():
 
         tests_data_str = ""
         for d in data1:
-            tests_data_str += (d.decode('utf-8'))
+            tests_data_str += (d.decode("utf-8"))
 
         templates_data_str = ""
         for d in data2:
-            templates_data_str += (d.decode('utf-8'))
+            templates_data_str += (d.decode("utf-8"))
 
-        title: str = request.form['title']
-        prompt: str = request.form['prompt']
+        title: str = request.form["title"]
+        prompt: str = request.form["prompt"]
 
         tutorial = Tutorial(name=title, prompt=prompt, template_code=templates_data_str, test_code=tests_data_str)
         db.session.add(tutorial)    
         db.session.commit()
 
-        return(f"{title} {prompt} {tests_data_str} {templates_data_str}")
+        return redirect(url_for("admin"))
     else:
         return render_template("admin.html", form=form)
-
-@app.route("/create_question", methods=["POST"])
-@csrf.exempt # FIXME: not secure, fix later
-def create_question():
-    title: str = request.form['title']
-    prompt: str = request.form['prompt']
-    test: str = request.form['test_file']
-    template: str = request.form['template_file']
-    print(request.files['file'])
-    # tutorial = Tutorial(name=title, prompt=prompt, template_code=template, test_code=test)
-    # db.session.add(tutorial)    
-    # db.session.commit()
-    # print(f"{file_name_1} {file_name_2}")
-    return({})
     
 
 @app.route("/user", methods=["GET"])
