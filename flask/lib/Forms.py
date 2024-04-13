@@ -4,7 +4,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import FieldList, FileField, FormField, StringField, SubmitField, TextAreaField, validators
 from wtforms.validators import DataRequired
 
-class TestForm(FlaskForm):
+class AdminForm(FlaskForm):
     title = StringField("title", validators=[DataRequired()])
     prompt = StringField("prompt", validators=[DataRequired()])
     # template = TextAreaField("template", default="# enter code here", validators=[DataRequired()])
@@ -17,3 +17,7 @@ class TestForm(FlaskForm):
         FileAllowed(["py"], message="upload .py template file")
     ])
     submit = SubmitField("submit", validators=[DataRequired()])
+
+class ProblemForm(FlaskForm):
+    user_code = TextAreaField("User Code")
+    submit = SubmitField("Submit")
