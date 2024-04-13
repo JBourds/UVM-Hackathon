@@ -3,7 +3,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import FieldList, FileField, FormField, StringField, SubmitField, TextAreaField, validators
 from wtforms.validators import DataRequired
 
-class TestForm(FlaskForm):
+class AdminForm(FlaskForm):
     title = StringField("Question Title", validators=[DataRequired()], render_kw={"placeholder": "Print \"Hello world!\""})
     prompt = StringField("Question Prompt", validators=[DataRequired()], render_kw={"placeholder": "Write a function to display a \"Hello world!\" message."})
     test_file = FileField("Tests File", validators=[
@@ -15,3 +15,7 @@ class TestForm(FlaskForm):
         FileAllowed(["py"], message="upload .py template file")
     ], render_kw={"class": "file_upload"})
     submit = SubmitField("Submit Question", validators=[DataRequired()], render_kw={"style": "margin-top: 1em;"})
+
+class ProblemForm(FlaskForm):
+    user_code = TextAreaField("User Code")
+    submit = SubmitField("Submit")

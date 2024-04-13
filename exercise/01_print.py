@@ -3,6 +3,6 @@
 
 input = []
 
-def oracle_function(x):
+def oracle_function():
     print("Hello, World!")
 

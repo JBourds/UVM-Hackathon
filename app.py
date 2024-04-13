@@ -19,6 +19,8 @@ import json
 import os
 from lib.Forms import AdminForm, ProblemForm
 
+from analysis import analyzer
+
 app = Flask(__name__)
 boostrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
@@ -122,9 +124,17 @@ def check_question():
     problem_id: int = data['problem_id']
     user_function: str = data['user_code']
     table_row = Tutorial.get_row(problem_id)
-    print(table_row)
 
-    return redirect(f"/problem/{problem_id}", code=302)
+    analysis_dictionary: dict = {
+        'problem_id': problem_id,
+        'user_function': user_function,
+        'prompt': table_row['prompt'],
+        'oracle_function': table_row['test_code'],
+    }
+    
+    analyzer_output = analyzer.analyze_code(analysis_dictionary)
+    output_string = f'Expected Output:\n{analyzer_output.get('Expected_IO', '')}\nActual Output:\n{analyzer_output.get('Actual_IO', '')}'
+    return redirect(url_for(f"problem", id=problem_id, user_function=user_function, output=output_string, code_analysis=analyzer_output.get('GPT_HELP', '')), code=302)
 
 @app.route("/problem/<int:id>", methods=["GET"])
 @csrf.exempt
@@ -133,18 +143,20 @@ def problem(id: int):
 
     if id > problem_count:
         return redirect(url_for('problem', problem_id=problem_count))
-
     if id < 1:
         return redirect(url_for('problem', problem_id=1))
 
-    template_code: str = Tutorial.get_template_code(id)
-
+    user_function: str = request.args.get("user_function", Tutorial.get_template_code(id))
     output: str = request.args.get("output", "Output will show here once you run your code")
     code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
+    table_row = Tutorial.get_row(id)
+    prompt: str = table_row['prompt']
+    name: str = table_row['name']
 
     form = ProblemForm(meta={'csrf': False})
-    form.user_code.data = template_code
-    return render_template("user.html", form=form, problem_id=id, problem_count=problem_count, output=output, code_analysis=code_analysis)
+    form.user_code.data = user_function
+    return render_template("user.html", form=form, problem_id=id, name=name, prompt=prompt, problem_count=problem_count, output=output, code_analysis=code_analysis)
+
 
 if __name__ == "__main__":
     db.app = app
@@ -154,10 +166,13 @@ if __name__ == "__main__":
         db.create_all()
 
         # Test code
-        tutorial = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
-        db.session.add(tutorial)    
-        tutorial2 = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
-        db.session.add(tutorial2)    
+        print_tutorial = Tutorial(name="Print Tutorial", prompt="Make a function that prints \"Hello, World!\".", template_code="def user_function(): \n\t pass", test_code="input = []\ndef oracle_function(): \n\tprint('hello world')")
+        db.session.add(print_tutorial)
+        # variables = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
+        # data_types = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
+        # variables = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
+        # control_flow = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
+
         db.session.commit()
 
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=False)

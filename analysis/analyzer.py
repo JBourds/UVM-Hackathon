@@ -2,9 +2,8 @@ import json
 import os 
 import contextlib
 import pprint
-from gpt import GPT_CLIENT
-
-
+from importlib import reload
+from analysis.gpt import GPT_CLIENT
 
 from io import StringIO 
 import sys
@@ -26,21 +25,21 @@ def analyze_code(user_input_dictionary):
             sys.stdout = self._stdout
 
     # This will be database Access
-    problem_id = 1
-    oracle_function_string = "def oracle_function(x):\n\t for i in range(0, x):\n\t\t print(i)"
-    test_values = [0, 1, 2, 4]
-    prompt = "Please write a function to print numbers 0-x for a parameter x"
-
+    print(user_input_dictionary)
+    problem_id = user_input_dictionary['problem_id']
+    oracle_function_string = user_input_dictionary['oracle_function']
+    prompt = user_input_dictionary['prompt']
 
     # Writing oracle function to oracle_function.py
     file2 = open("oracle_function.py", "w")
     file2.write(oracle_function_string)
     file2.close()
 
-    from oracle_function import oracle_function
-
-
-
+    try: 
+        import oracle_function
+        reload(oracle_function)
+    except:
+         print("ORACLE NOT ACCURATE")
 
     # Getting function as string from user_input.json and writing it to user_function.py
     user_function_string = user_input_dictionary["user_function"]
@@ -49,33 +48,40 @@ def analyze_code(user_input_dictionary):
     file2.close()
 
 
-
-
-
-
-
     user_function_output = {}
     oracle_function_output = {}
 
 
     try:
-        from user_function import user_function
+        import user_function
+        reload(user_function)
 
-        if test_values == []:
-                    result = user_function()
-                    oracle_result = oracle_function()
-        for value in test_values:    
+        if oracle_function.input == []:
+            print("INPUT IS EMPTY")
             with Capturing() as out_oracle:
-                result = oracle_function(value)
+                result = oracle_function.oracle_function()
                 if result is not None:
                     print(result)
             with Capturing() as out_user:
-                result = user_function(value)
+                result = user_function.user_function()
                 if result is not None:
-                    print(result)    
+                    print(result)  
 
-            user_function_output[value] = out_user
-            oracle_function_output[value] = out_oracle
+            user_function_output[""] = out_user
+            oracle_function_output[""] = out_oracle
+        else:
+            for value in oracle_function.input:    
+                with Capturing() as out_oracle:
+                    result = oracle_function.oracle_function(value)
+                    if result is not None:
+                        print(result)
+                with Capturing() as out_user:
+                    result = user_function.user_function(value)
+                    if result is not None:
+                        print(result)    
+
+                user_function_output[value] = out_user
+                oracle_function_output[value] = out_oracle
 
         failed_comparison = False
         for key in user_function_output.keys():
@@ -88,23 +94,25 @@ def analyze_code(user_input_dictionary):
         print("ORACLE FUNCTION:")
         print(oracle_function_string)
         print()
+        gpt_response = "You did it! Good Job!"
         if failed_comparison:
             gpt_client = GPT_CLIENT(oracle_function_string, user_function_string, oracle_function_output, user_function_output, prompt)
             gpt_response = gpt_client.send_request().content
-        
+            print(gpt_response)        
         return {"Expected_IO" : oracle_function_output, "Actual_IO": user_function_output, "GPT_HELP": gpt_response}
 
     except Exception as e: 
+        print(e)
         return {"response": "code failed to run"}
 
     
 
 
-user_input_dictionary = {
-    "problem_id": 1,
-    "user_function":
-        "def user_function(x):\n\t for i in range(0, x + 1):\n\t\t print(i)"
-}
+# user_input_dictionary = {
+#     "problem_id": 1,
+#     "user_function":
+#         "def user_function(x):\n\t for i in range(0, x + 1):\n\t\t print(i)"
+# }
 
-output_dict = analyze_code(user_input_dictionary)
-print(json.dumps(output_dict, indent=4))
+# output_dict = analyze_code(user_input_dictionary)
+# print(json.dumps(output_dict, indent=4))
