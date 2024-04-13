@@ -41,19 +41,11 @@ def analyze_code(user_input_dictionary):
     except:
          print("ORACLE NOT ACCURATE")
 
-
-
-
     # Getting function as string from user_input.json and writing it to user_function.py
     user_function_string = user_input_dictionary["user_function"]
     file2 = open("user_function.py", "w")
     file2.write(user_function_string)
     file2.close()
-
-
-
-
-
 
 
     user_function_output = {}
@@ -78,7 +70,7 @@ def analyze_code(user_input_dictionary):
             user_function_output[""] = out_user
             oracle_function_output[""] = out_oracle
         else:
-            for value in input:    
+            for value in oracle_function.input:    
                 with Capturing() as out_oracle:
                     result = oracle_function.oracle_function(value)
                     if result is not None:
