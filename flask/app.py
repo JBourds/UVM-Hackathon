@@ -126,9 +126,17 @@ def check_question():
 
     return redirect(f"/problem/{problem_id}", code=302)
 
-@app.route("/problem/<id>", methods=["GET"])
+@app.route("/problem/<int:id>", methods=["GET"])
 @csrf.exempt
 def problem(id: int):
+    problem_count = db.session.query(func.count(Tutorial.order)).scalar()
+
+    if id > problem_count:
+        return redirect(url_for('problem', problem_id=problem_count))
+
+    if id < 1:
+        return redirect(url_for('problem', problem_id=1))
+
     template_code: str = Tutorial.get_template_code(id)
 
     output: str = request.args.get("output", "Output will show here once you run your code")
@@ -136,8 +144,7 @@ def problem(id: int):
 
     form = ProblemForm(meta={'csrf': False})
     form.user_code.data = template_code
-    return render_template("user.html", form=form, problem_id=id, output=output, code_analysis=code_analysis)
-
+    return render_template("user.html", form=form, problem_id=id, problem_count=problem_count, output=output, code_analysis=code_analysis)
 
 if __name__ == "__main__":
     db.app = app
