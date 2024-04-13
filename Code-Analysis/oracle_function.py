@@ -1,2 +1,3 @@
 def oracle_function(x):
-	 print(f'{2 * x}')
+	 for i in range(0, x):
+		 print(i)

@@ -1,2 +1,3 @@
-def user_function(x): 
-	 print(f'{x}')
+def user_function(x):
+	 for i in range(0, x + 1):
+		 print(i)

@@ -27,9 +27,9 @@ def analyze_code(user_input_dictionary):
 
     # This will be database Access
     problem_id = 1
-    oracle_function_string = "def oracle_function(x):\n\t print(f'{2 * x}')"
+    oracle_function_string = "def oracle_function(x):\n\t for i in range(0, x):\n\t\t print(i)"
     test_values = [0, 1, 2, 4]
-    prompt = "Please write a function which takes in a parameter x and prints 2 times the parameter"
+    prompt = "Please write a function to print numbers 0-x for a parameter x"
 
 
     # Writing oracle function to oracle_function.py
@@ -103,7 +103,7 @@ def analyze_code(user_input_dictionary):
 user_input_dictionary = {
     "problem_id": 1,
     "user_function":
-        "def user_function(x): \n\t print(f'{x}')"
+        "def user_function(x):\n\t for i in range(0, x + 1):\n\t\t print(i)"
 }
 
 output_dict = analyze_code(user_input_dictionary)
