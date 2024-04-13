@@ -9,6 +9,7 @@ User
 {{ super() }}
 <div class="container pt-5">
   <form id="signup-form" class="custom-bg-primary" method="POST" action="/check_question">
+    <input type="number" id="problem_id" name="problem_id" value="{{ problem_id }}" hidden style="display: none">
     <h2 class="text-center font-weight-bold">User</h2>
     <div class="text-right" aria-label="Basic example">
         <button type="button" class="btn btn-primary">Compile/Run</button>

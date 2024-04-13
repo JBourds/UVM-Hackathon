@@ -8,6 +8,6 @@ class AdminForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class UserForm(FlaskForm):
-    template = TextAreaField("Template Code")
+    user_code = TextAreaField("User Code")
     submit = SubmitField("Submit")
 

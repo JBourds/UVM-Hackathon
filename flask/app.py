@@ -35,7 +35,7 @@ class Tutorial(db.Model):
     test_inputs = db.Column(db.Text)    # Pickled array of potential array inputs
 
     @staticmethod
-    def get_pickled_oracle_function(problem_number: int) -> str:
+    def get_oracle_function(problem_number: int) -> str:
         return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_code']
     
     @staticmethod
@@ -43,8 +43,8 @@ class Tutorial(db.Model):
         return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['template_code']
     
     @staticmethod
-    def get_pickled_test_inputs(problem_number: int) -> str:
-        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_inputs']
+    def get_row(problem_number: int):
+        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()
     
     def serialize(self):
         """
@@ -83,19 +83,25 @@ def admin():
 @app.route("/check_question", methods=["POST"])
 @csrf.exempt
 def check_question():
+    data = request.form
+    problem_id: int = data['problem_id']
+    user_function: str = data['user_code']
+    table_row = Tutorial.get_row(problem_id)
+    print(table_row)
 
-    return redirect("/user", code=302)
+    return redirect(f"/problem/{problem_id}", code=302)
 
 @app.route("/problem/<id>", methods=["GET"])
 @csrf.exempt
 def problem(id: int):
     template_code: str = Tutorial.get_template_code(id)
+
     output: str = request.args.get("output", "Output will show here once you run your code")
     code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
 
     form = UserForm(meta={'csrf': False})
-    form.template.data = template_code
-    return render_template("user.html", form=form, output=output, code_analysis=code_analysis)
+    form.user_code.data = template_code
+    return render_template("user.html", form=form, problem_id=id, output=output, code_analysis=code_analysis)
 
 
 if __name__ == "__main__":
