@@ -39,6 +39,10 @@ class Tutorial(db.Model):
         return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_code']
     
     @staticmethod
+    def get_template_code(problem_number: int) -> str:
+        return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['template_code']
+    
+    @staticmethod
     def get_pickled_test_inputs(problem_number: int) -> str:
         return Tutorial.query.filter(Tutorial.order == problem_number).first().serialize()['test_inputs']
     
@@ -79,19 +83,18 @@ def admin():
 @app.route("/check_question", methods=["POST"])
 @csrf.exempt
 def check_question():
-    print(request.data)
-    data = jsonify(json.loads(request.data))
-    print(data)
 
     return redirect("/user", code=302)
 
-@app.route("/user", methods=["GET"])
+@app.route("/problem/<id>", methods=["GET"])
 @csrf.exempt
-def user():
+def problem(id: int):
+    template_code: str = Tutorial.get_template_code(id)
     output: str = request.args.get("output", "Output will show here once you run your code")
     code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
 
     form = UserForm(meta={'csrf': False})
+    form.template.data = template_code
     return render_template("user.html", form=form, output=output, code_analysis=code_analysis)
 
 
@@ -103,9 +106,10 @@ if __name__ == "__main__":
         db.create_all()
 
         # Test code
-        # tutorial = Tutorial(name="Test", prompt="Test", language="Python", template_code="def test_", test_code="test code", test_inputs="test input")
-        # db.session.add(tutorial)    
-        # db.session.commit()
-        # print(Tutorial.get_pickled_oracle_function(1))
+        tutorial = Tutorial(name="Test", prompt="Test", language="Python", template_code="def test_", test_code="test code", test_inputs="test input")
+        db.session.add(tutorial)    
+        tutorial2 = Tutorial(name="Test", prompt="Test", language="Python", template_code="def test_", test_code="test code", test_inputs="test input")
+        db.session.add(tutorial2)    
+        db.session.commit()
 
     app.run(port=5000, debug=True)
