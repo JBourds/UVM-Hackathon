@@ -7,11 +7,17 @@ Date:        4/13/24
 """
 
 from flask import Flask, jsonify, render_template, request, Response
+from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
-import os
+from flask_wtf import CSRFProtect, FlaskForm, csrf
 from pprint import pprint
 
+import os
+from lib.Forms import TestForm
+
 app = Flask(__name__)
+boostrap = Bootstrap5(app)
+csrf = CSRFProtect(app)
 basedir: str = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////" + os.path.join(basedir, "database.db")
 db = SQLAlchemy()
@@ -36,6 +42,7 @@ def print_and_return(client_bindings: dict) -> Response:
 
 # Endpoints
 
+
 @app.route("/", methods=["GET"])
 def main():
     return render_template("base.html")
@@ -46,7 +53,8 @@ def form():
 
 @app.route("/admin", methods=["GET"])
 def admin():
-    return render_template("admin.html")
+    form = TestForm(meta={'csrf': False})
+    return render_template("admin.html", form=form)
 
 @app.route("/user", methods=["GET"])
 def user():
