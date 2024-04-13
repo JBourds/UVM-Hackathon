@@ -131,22 +131,22 @@ def check_question():
         'prompt': table_row['prompt'],
         'oracle_function': table_row['test_code'],
     }
-
-
     
-    output = analyzer.analyze_code(analysis_dictionary)
-    print(output)
-    return redirect(url_for(f"problem", id = problem_id), code=302)
+    analyzer_output = analyzer.analyze_code(analysis_dictionary)
+    print(f'Analyzer Output')
+    print(analyzer_output)
+    output_string = f'Expected Output:\n{analyzer_output['Expected_IO']}\nActual Output:\n{analyzer_output['Actual_IO']}'
+    return redirect(url_for(f"problem", id=problem_id, user_function=user_function, output=output_string, code_analysis=analyzer_output['GPT_HELP']), code=302)
 
 @app.route("/problem/<id>", methods=["GET"])
 @csrf.exempt
 def problem(id: int):
-    template_code: str = Tutorial.get_template_code(id)
+    user_function: str = request.args.get("user_function", Tutorial.get_template_code(id))
     output: str = request.args.get("output", "Output will show here once you run your code")
     code_analysis: str = request.args.get("code_analysis", "Code analysis will show here once you run your code")
 
     form = ProblemForm(meta={'csrf': False})
-    form.user_code.data = template_code
+    form.user_code.data = user_function
     return render_template("user.html", form=form, problem_id=id, output=output, code_analysis=code_analysis)
 
 

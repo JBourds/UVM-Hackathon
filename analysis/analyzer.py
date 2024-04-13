@@ -2,6 +2,7 @@ import json
 import os 
 import contextlib
 import pprint
+from importlib import reload
 from analysis.gpt import GPT_CLIENT
 
 from io import StringIO 
@@ -35,7 +36,8 @@ def analyze_code(user_input_dictionary):
     file2.close()
 
     try: 
-        from oracle_function import oracle_function, input
+        import oracle_function
+        reload(oracle_function)
     except:
          print("ORACLE NOT ACCURATE")
 
@@ -59,16 +61,17 @@ def analyze_code(user_input_dictionary):
 
 
     try:
-        from user_function import user_function
+        import user_function
+        reload(user_function)
 
-        if input == []:
+        if oracle_function.input == []:
             print("INPUT IS EMPTY")
             with Capturing() as out_oracle:
-                result = oracle_function()
+                result = oracle_function.oracle_function()
                 if result is not None:
                     print(result)
             with Capturing() as out_user:
-                result = user_function()
+                result = user_function.user_function()
                 if result is not None:
                     print(result)  
 
@@ -77,11 +80,11 @@ def analyze_code(user_input_dictionary):
         else:
             for value in input:    
                 with Capturing() as out_oracle:
-                    result = oracle_function(value)
+                    result = oracle_function.oracle_function(value)
                     if result is not None:
                         print(result)
                 with Capturing() as out_user:
-                    result = user_function(value)
+                    result = user_function.user_function(value)
                     if result is not None:
                         print(result)    
 
@@ -103,6 +106,7 @@ def analyze_code(user_input_dictionary):
         if failed_comparison:
             gpt_client = GPT_CLIENT(oracle_function_string, user_function_string, oracle_function_output, user_function_output, prompt)
             gpt_response = gpt_client.send_request().content
+            print(gpt_response)        
         return {"Expected_IO" : oracle_function_output, "Actual_IO": user_function_output, "GPT_HELP": gpt_response}
 
     except Exception as e: 
