@@ -1,8 +1,8 @@
 
 # PROMPT: Make a print statement print "Hello, World!".
 
-input = [""]
+input = []
 
-def oracle_function(x):
+def oracle_function():
     print("Hello, World!")
 
