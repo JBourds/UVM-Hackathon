@@ -1,7 +1,5 @@
-def user_function(tuple_containing_x_y):
-    x = tuple_containing_x_y[0]
-    y = tuple_containing_x_y[0]
-    new_array = []
-    for element in x:
-        new_array.append(element * y)
-    return new_array
+def user_function(x:list,y: int):
+   new_list = []
+   for i in range(1, len(x)):
+        new_list.append(x[i] * y)
+   return new_list

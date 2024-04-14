@@ -67,21 +67,21 @@ def analyze_code(user_input_dictionary):
                 if result is not None:
                     print(result)  
 
-            user_function_output.append = ("", out_user)
-            oracle_function_output.append = ("", out_oracle)
+            user_function_output.append(("", out_user))
+            oracle_function_output.append(("", out_oracle))
         else:
-            for value in oracle_function.input:    
+            for test_case in oracle_function.input:    
                 with Capturing() as out_oracle:
-                    result = oracle_function.oracle_function(value)
+                    result = eval(f'oracle_function.oracle_function({test_case.get_arguments()})')
                     if result is not None:
                         print(result)
                 with Capturing() as out_user:
-                    result = user_function.user_function(value)
+                    result = eval(f'user_function.user_function({test_case.get_arguments()})')
                     if result is not None:
                         print(result)    
 
-                user_function_output.append((value, out_user))
-                oracle_function_output.append((value,out_oracle))
+                user_function_output.append((test_case.get_arguments(), out_user))
+                oracle_function_output.append((test_case.get_arguments(),out_oracle))
 
         failed_comparison = False
         for i in range(len(user_function_output)):
