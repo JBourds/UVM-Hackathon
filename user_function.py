@@ -1,8 +1,7 @@
-def user_function(x):
-   total = 0
-   number_integer = 0
-   for element in x:
-        if type(element) is int:
-            total += element
-            number_integer += 1
-   return total / number_integer
+def user_function(tuple_containing_x_y):
+    x = tuple_containing_x_y[0]
+    y = tuple_containing_x_y[0]
+    new_array = []
+    for element in x:
+        new_array.append(element * y)
+    return new_array
