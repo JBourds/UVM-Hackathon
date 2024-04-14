@@ -1,10 +1,11 @@
+input = [(1, "hello", 5), (1,2), (22, "66", 15, False, 5)]
 
-# PROMT: Now try creating a variable that contains "Hello, World!" and print it by printing the variable.
-
-input = [0, 2, 3, 5]
 
 def oracle_function(x):
     total = 0
-    for i in range(0, x):
-        total += i
-    return total
+    count = 0
+    for i in range(0, len(x)):
+        if type(x[i]) is int:
+            total += x[i]
+            count += 1
+    return total/count

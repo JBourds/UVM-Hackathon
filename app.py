@@ -133,7 +133,7 @@ def check_question():
     }
     
     analyzer_output = analyzer.analyze_code(analysis_dictionary)
-    output_string = f'Expected Output:\n{analyzer_output.get('Expected_IO', '')}\nActual Output:\n{analyzer_output.get('Actual_IO', '')}'
+    output_string = f"Expected Output:\n{analyzer_output.get('Expected_IO', '')}\nActual Output:\n{analyzer_output.get('Actual_IO', '')}"
     return redirect(url_for(f"problem", id=problem_id, user_function=user_function, output=output_string, code_analysis=analyzer_output.get('GPT_HELP', '')), code=302)
 
 @app.route("/problem/<int:id>", methods=["GET"])
@@ -166,8 +166,8 @@ if __name__ == "__main__":
         db.create_all()
 
         # Test code
-        print_tutorial = Tutorial(name="Print Tutorial", prompt="Make a function that prints \"Hello, World!\".", template_code="def user_function(): \n\t pass", test_code="input = []\ndef oracle_function(): \n\tprint('hello world')")
-        db.session.add(print_tutorial)
+        # print_tutorial = Tutorial(name="Print Tutorial", prompt="Make a function that prints \"Hello, World!\".", template_code="def user_function(): \n\t pass", test_code="input = []\ndef oracle_function(): \n\tprint('hello world')")
+        # db.session.add(print_tutorial)
         # variables = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
         # data_types = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")
         # variables = Tutorial(name="Test", prompt="Test", template_code="def test_", test_code="test code")

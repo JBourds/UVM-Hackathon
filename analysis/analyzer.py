@@ -103,7 +103,9 @@ def analyze_code(user_input_dictionary):
 
     except Exception as e: 
         print(e)
-        return {"response": "code failed to run"}
+        gpt_client = GPT_CLIENT(oracle_function_string, user_function_string, oracle_function_output, user_function_output, prompt)
+        gpt_response = gpt_client.send_request().content
+        return {"Expected_IO" : f"Inputs Were {oracle_function.input}", "Actual_IO": "FAILED", "GPT_HELP": f'ERROR IS:{e} \n\n              ADVICE:    {gpt_response}'}
 
     
 
