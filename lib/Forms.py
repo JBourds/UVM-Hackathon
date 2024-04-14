@@ -17,5 +17,5 @@ class AdminForm(FlaskForm):
     submit = SubmitField("Submit Question", validators=[DataRequired()], render_kw={"style": "margin-top: 1em;"})
 
 class ProblemForm(FlaskForm):
-    user_code = TextAreaField("User Code")
+    user_code = TextAreaField("User Code", render_kw={"rows": 20})
     submit = SubmitField("Submit")

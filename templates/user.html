@@ -1,9 +1,11 @@
 {% extends "form.html" %}
 {% from "bootstrap5/form.html" import render_form %}
-
 {% block title %}
 Problem {{ problem_id }} 
 {% endblock %}
+
+
+
 
 {% block form %}
 {{ super() }}
@@ -42,4 +44,24 @@ Problem {{ problem_id }}
   </div>
 
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('textarea').keydown(function(e) {
+      console.log("LOADED");
+        if (e.keyCode == 9) {
+            e.preventDefault();
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+            var value = $(this).val();
+            $(this).val(value.substring(0, start) + '\t' + value.substring(end));
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    });
+});
+</script>
+
 {% endblock %}
+
+
