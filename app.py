@@ -5,7 +5,7 @@ Description: Flask app running as the web app.
 Author:      Jordan Bourdeau, Noah Schonhorn
 Date:        4/13/24
 """
-
+import re
 from re import template
 from flask import Flask, jsonify, redirect, render_template, request, Response, url_for
 from flask_bootstrap import Bootstrap5
@@ -132,9 +132,32 @@ def check_question():
         'oracle_function': table_row['test_code'],
     }
     
+    
     analyzer_output = analyzer.analyze_code(analysis_dictionary)
-    output_string = f"Expected Output:\n{analyzer_output[0]}\nActual Output:\n{analyzer_output[1]}"
-    return redirect(url_for(f"problem", id=problem_id, user_function=user_function, output=output_string, code_analysis=analyzer_output[2]), code=302)
+    
+    # Formatting the strings nicely
+    expected_formatted = ""
+    actual_formatted = ""
+    gpt_split = analyzer_output[2].split(" ")
+    gpt_formatted = ""
+    for i in range(0, len(gpt_split)):
+        if (i + 1) % 20 == 0:
+            gpt_formatted += f' {gpt_split[i]} \n'
+        else:
+            gpt_formatted += f'{gpt_split[i]} '
+
+    try: 
+        for item in analyzer_output[0]:
+            expected_formatted += f'   {f"{item[0]} --->   {item[1]}"}    \n'
+        for item in analyzer_output[1]:
+            actual_formatted += f'   {f"{item[0]} --->   {item[1]}"}    \n'
+    except:
+        expected_formatted = "Code failed to compile"
+        actual_formatted = "Code failed to compile"
+
+    # Done formatting the strings nicely
+    output_string = f"Expected Input-Output:\n{expected_formatted}\n\nActual Output:\n{actual_formatted}"
+    return redirect(url_for(f"problem", id=problem_id, user_function=user_function, output=output_string, code_analysis=gpt_formatted), code=302)
 
 @app.route("/problem/<int:id>", methods=["GET"])
 @csrf.exempt

@@ -106,7 +106,7 @@ def analyze_code(user_input_dictionary):
         print(e)
         gpt_client = GPT_CLIENT(oracle_function_string, user_function_string, oracle_function_output, user_function_output, prompt)
         gpt_response = gpt_client.send_request().content
-        return ["Inputs Were {oracle_function.input}", "FAILED", f'ERROR IS:{e} \n\n              ADVICE:    {gpt_response}']
+        return ["Inputs Were {oracle_function.input}", "FAILED", f"ERROR IS:{e} \n\n ADVICE: {gpt_response}"]
 
     
 
