@@ -6,7 +6,6 @@ Problem {{ problem_id }}
 
 
 
-
 {% block form %}
 {{ super() }}
 <div class="container my-5">
@@ -45,11 +44,15 @@ Problem {{ problem_id }}
 
 </div>
 
+<script>
+ 
+</script>
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
     $('textarea').keydown(function(e) {
-      console.log("LOADED");
         if (e.keyCode == 9) {
             e.preventDefault();
             var start = this.selectionStart;
