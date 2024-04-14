@@ -1,3 +1,2 @@
-def user_function():
-    print("")
-
+def user_function(x):
+	print(len(x))
