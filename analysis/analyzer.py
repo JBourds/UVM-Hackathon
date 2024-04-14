@@ -48,8 +48,8 @@ def analyze_code(user_input_dictionary):
     file2.close()
 
 
-    user_function_output = {}
-    oracle_function_output = {}
+    user_function_output = []
+    oracle_function_output = []
 
 
     try:
@@ -67,8 +67,8 @@ def analyze_code(user_input_dictionary):
                 if result is not None:
                     print(result)  
 
-            user_function_output[""] = out_user
-            oracle_function_output[""] = out_oracle
+            user_function_output.append = ("", out_user)
+            oracle_function_output.append = ("", out_oracle)
         else:
             for value in oracle_function.input:    
                 with Capturing() as out_oracle:
@@ -80,32 +80,33 @@ def analyze_code(user_input_dictionary):
                     if result is not None:
                         print(result)    
 
-                user_function_output[value] = out_user
-                oracle_function_output[value] = out_oracle
+                user_function_output.append((value, out_user))
+                oracle_function_output.append((value,out_oracle))
 
         failed_comparison = False
-        for key in user_function_output.keys():
-            if user_function_output[key] != oracle_function_output[key]:
+        for i in range(len(user_function_output)):
+            if user_function_output[i][1] != oracle_function_output[i][1]:
                 failed_comparison = True
-                print(f'Test case with input {key} failed: Correct answer is {oracle_function_output[key]} and user answer is {user_function_output[key]}')
+                print(f'Test case with input {user_function_output[i][0]} failed: Correct answer is {oracle_function_output[i][1]} and user answer is {user_function_output[i][1]}')
         print()
         print("USER FUNCTION:")
         print(user_function_string)
         print("ORACLE FUNCTION:")
         print(oracle_function_string)
         print()
-        gpt_response = "You did it! Good Job!"
+        if not failed_comparison:
+            gpt_response = "You did it! Good Job!"
         if failed_comparison:
             gpt_client = GPT_CLIENT(oracle_function_string, user_function_string, oracle_function_output, user_function_output, prompt)
             gpt_response = gpt_client.send_request().content
             print(gpt_response)        
-        return {"Expected_IO" : oracle_function_output, "Actual_IO": user_function_output, "GPT_HELP": gpt_response}
+        return [oracle_function_output, user_function_output, gpt_response]
 
     except Exception as e: 
         print(e)
         gpt_client = GPT_CLIENT(oracle_function_string, user_function_string, oracle_function_output, user_function_output, prompt)
         gpt_response = gpt_client.send_request().content
-        return {"Expected_IO" : f"Inputs Were {oracle_function.input}", "Actual_IO": "FAILED", "GPT_HELP": f'ERROR IS:{e} \n\n              ADVICE:    {gpt_response}'}
+        return ["Inputs Were {oracle_function.input}", "FAILED", f'ERROR IS:{e} \n\n              ADVICE:    {gpt_response}']
 
     
 

@@ -1,8 +1,5 @@
 def user_function(x):
-    total = 0
-    count = 0
+    new_list = []
     for i in range(0, len(x)):
-        if type(x[i]) is int:
-            total += x[i]
-            count += 1
-    return total / len(x)
+        new_list.append(x[len(x) - (i + 1)])
+    return new_list

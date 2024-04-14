@@ -58,9 +58,9 @@ class GPT_CLIENT:
                   <correctCode> \
                     {self.oracle_code} \
                   </correctCode> \
-                  <testInput>{self.oracle_input_output.keys()}</testInput> \
-                  <correctOutput>{self.oracle_input_output.values()}</correctOutput> \
-                  <userOutput>{self.user_input_output.values()}</userOutput>"
+                  <testInput>{self.oracle_input_output}</testInput> \
+                  <correctOutput>{self.oracle_input_output}</correctOutput> \
+                  <userOutput>{self.user_input_output}</userOutput>"
 
   def send_request(self):
     completion = self.client.chat.completions.create(
