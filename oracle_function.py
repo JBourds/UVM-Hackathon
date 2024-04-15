@@ -1,7 +1,16 @@
-# PROMPT: Create a string variable with the value "Hello, World!". Use the len() function to print the length of the string.
-
 from test_case import Test_Case
-input = [Test_Case("Tomato"), Test_Case("Banana"), Test_Case("2")]
 
-def oracle_function(x):
-    print(len(x))
+def double(x: int):
+    return 2 * x
+
+def minus_one(x: int):
+    return x - 1
+
+input = [Test_Case(double, [1, 3, 4,5])]
+
+
+def oracle_function(f:callable, x: list[int]):
+    new_list = []
+    for element in x:
+        new_list.append(f(element))
+    return new_list
